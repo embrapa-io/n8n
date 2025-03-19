@@ -17,29 +17,51 @@ services:
       timeout: 5s
       retries: 10
 
+  vector:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${VECTOR_USER}
+      POSTGRES_PASSWORD: ${VECTOR_PASSWORD}
+      POSTGRES_DB: ${VECTOR_DB}
+    volumes:
+      - vector_storage:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h localhost -U ${VECTOR_USER} -d ${VECTOR_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   n8n:
     image: docker.n8n.io/n8nio/n8n
     restart: unless-stopped
     environment:
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=db
-      - DB_POSTGRESDB_PORT=5432
-      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
-      - DB_POSTGRESDB_USER=${POSTGRES_NON_ROOT_USER}
-      - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: db
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB}
+      DB_POSTGRESDB_USER: ${POSTGRES_NON_ROOT_USER}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_NON_ROOT_PASSWORD}
     ports:
       - ${PORT}:5678
     links:
       - db
+      - vector
     volumes:
       - n8n_storage:/home/node/.n8n
     depends_on:
       db:
         condition: service_healthy
+      vector:
+        condition: service_healthy
 
 volumes:
   db_storage:
     name: ${VOLUME_DB}
+    external: true
+
+  vector_storage:
+    name: ${VOLUME_VECTOR}
     external: true
 
   n8n_storage:
