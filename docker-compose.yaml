@@ -64,7 +64,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     volumes:
-      - pgadmin_data:/var/lib/pgadmin
+      - pgadmin_storage:/var/lib/pgadmin
 
 volumes:
   db_storage:
@@ -77,4 +77,8 @@ volumes:
 
   n8n_storage:
     name: ${VOLUME_N8N}
+    external: true
+
+  pgadmin_storage:
+    name: ${VOLUME_PGADMIN}
     external: true
