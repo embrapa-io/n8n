@@ -3,16 +3,16 @@ services:
     image: postgres:17
     restart: unless-stopped
     environment:
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
-      - POSTGRES_NON_ROOT_USER
-      - POSTGRES_NON_ROOT_PASSWORD
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: n8n
+      POSTGRES_NON_ROOT_USER: ${POSTGRES_NON_ROOT_USER}
+      POSTGRES_NON_ROOT_PASSWORD: ${POSTGRES_NON_ROOT_PASSWORD}
     volumes:
       - db_storage:/var/lib/postgresql/data
       - ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER} -d n8n']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -36,12 +36,16 @@ services:
     image: docker.n8n.io/n8nio/n8n
     restart: unless-stopped
     environment:
+      N8N_HOST: ${HOST}
+      N8N_PORT: 5678
+      WEBHOOK_URL: https://${HOST}/
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: db
       DB_POSTGRESDB_PORT: 5432
-      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB}
+      DB_POSTGRESDB_DATABASE: n8n
       DB_POSTGRESDB_USER: ${POSTGRES_NON_ROOT_USER}
       DB_POSTGRESDB_PASSWORD: ${POSTGRES_NON_ROOT_PASSWORD}
+      GENERIC_TIMEZONE: ${TIMEZONE}
     ports:
       - ${PORT}:5678
     links:
@@ -66,6 +70,36 @@ services:
     volumes:
       - pgadmin_storage:/var/lib/pgadmin
 
+  waha:
+    image: devlikeapro/waha:latest
+    restart: unless-stopped
+    environment:
+      WHATSAPP_DEFAULT_ENGINE: NOWEB
+      WHATSAPP_HOOK_EVENTS: message
+    volumes:
+      - waha_storage:/tmp
+    healthcheck:
+      test: curl --fail -s http://localhost:3000 || exit 1
+      interval: 20s
+      timeout: 10s
+      start_period: 10s
+      retries: 5
+
+  nginx:
+    build:
+      context: .
+    restart: unless-stopped
+    ports:
+      - ${PORT_WAHA}:80
+    depends_on:
+      waha:
+        condition: service_healthy
+    environment:
+      - FORWARD_HOST=waha
+      - FORWARD_PORT=3000
+      - BASIC_USERNAME=${WAHA_USERNAME}
+      - BASIC_PASSWORD=${WAHA_PASSWORD}
+
 volumes:
   db_storage:
     name: ${VOLUME_DB}
@@ -81,4 +115,8 @@ volumes:
 
   pgadmin_storage:
     name: ${VOLUME_PGADMIN}
+    external: true
+
+  waha_storage:
+    name: ${VOLUME_WAHA}
     external: true

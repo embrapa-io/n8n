@@ -16,35 +16,32 @@ ollama pull gemma3:4b
 
 ## Deploy
 
-```
-docker volume create n8n_db
-docker volume create n8n_data
+> **Atenção!** No MacOS faça: `docker pull devlikeapro/waha:arm && docker tag devlikeapro/waha:arm devlikeapro/waha:latest`.
 
+Criação dos volumes:
+
+```
+docker volume create n8n_db && \
+docker volume create n8n_data && \
+docker volume create n8n_vector && \
+docker volume create n8n_pgadmin && \
+docker volume create n8n_waha
+```
+
+Configuração das variáveis de ambiente:
+
+```
 cp .env.example .env
-
-docker-compose up --force-recreate --build --remove-orphans --wait
 ```
 
-## Configuração
-
-Usuários e senhas padrões:
-
-- System Administrator: sysadmin@thingsboard.org / sysadmin
-- Tenant Administrator: tenant@thingsboard.org / tenant
-- Customer User: customer@thingsboard.org / customer
-
-## Update
-
-Alterar abaixo o valor '3.6.4' pela versão atual (que será substituída pela nova versão):
+Subir a _stack_ de containers:
 
 ```
-docker-compose stop && docker-compose pull && docker-compose up -d db
-echo '3.6.4' > $(pwd)/data/.upgradeversion
-docker run -it --rm \
-  -e SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/thingsboard \
-  -e SPRING_DATASOURCE_USERNAME=thingsboard \
-  -e SPRING_DATASOURCE_PASSWORD=secret \
-  thingsboard/tb-postgres upgrade-tb.sh
-docker compose rm thingsboard
-docker-compose up --force-recreate --build --remove-orphans --wait
+docker compose up --force-recreate --build --remove-orphans --wait
 ```
+
+## Referências
+
+- https://www.youtube.com/watch?v=g3sXsi_OYqQ&t=1575s
+- https://comunidadezdg.com.br/waha-n8n/
+- https://waha.devlike.pro/docs/overview/quick-start/
