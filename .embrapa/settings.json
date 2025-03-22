@@ -29,11 +29,11 @@
       { "name": "PGADMIN_PASSWORD", "type": "PASSWORD" },
       { "name": "WAHA_USERNAME", "type": "PASSWORD" },
       { "name": "WAHA_PASSWORD", "type": "PASSWORD" },
-      { "name": "VOLUME_DB", "type": "VOLUME" },
-      { "name": "VOLUME_N8N", "type": "VOLUME" },
-      { "name": "VOLUME_VECTOR", "type": "VOLUME" },
-      { "name": "VOLUME_PGADMIN", "type": "VOLUME" },
-      { "name": "VOLUME_WAHA", "type": "VOLUME" }
+      { "name": "VOLUME_DB", "type": "VOLUME", "value": "db" },
+      { "name": "VOLUME_N8N", "type": "VOLUME", "value": "n8n" },
+      { "name": "VOLUME_VECTOR", "type": "VOLUME", "value": "vector" },
+      { "name": "VOLUME_PGADMIN", "type": "VOLUME", "value": "pgadmin" },
+      { "name": "VOLUME_WAHA", "type": "VOLUME", "value": "waha" }
     ],
     "alpha": [],
     "beta": [],
