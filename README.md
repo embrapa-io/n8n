@@ -13,7 +13,7 @@ Criação dos volumes:
 
 ```
 docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_db && \
-docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_data && \
+docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_n8n && \
 docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_vector && \
 docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_pgadmin && \
 docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_waha && \
