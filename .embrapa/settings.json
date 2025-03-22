@@ -1,5 +1,5 @@
 {
-  "boilerplate": "n8n",
+  "boilerplate": "n8n-pgvector-waha",
   "platform": "node",
   "label": "N8N + PGVector + WAHA",
   "description": "N8N com integração com PGVector e WAHA.",
