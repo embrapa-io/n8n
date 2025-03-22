@@ -3,7 +3,7 @@
 
 Instancia no cluster o automatizador de fluxograma [N8N](https://n8n.io), bem como containers do [PGVector](https://github.com/pgvector/pgvector) e do [WAHA - WhatsApp API](https://waha.devlike.pro).
 
-Baseado na [configuração de _deploy_ do N8B usando Docker](https://docs.n8n.io/hosting/installation/server-setups/docker-compose/).
+Baseado na [configuração de _deploy_ do N8N usando Docker](https://docs.n8n.io/hosting/installation/server-setups/docker-compose/).
 
 ## Deploy
 
