@@ -1,0 +1,43 @@
+{
+  "boilerplate": "n8n",
+  "platform": "node",
+  "label": "N8N + PGVector + WAHA",
+  "description": "N8N com integração com PGVector e WAHA.",
+  "references": [
+    { "label": "N8N", "url": "https://n8n.io/" },
+    { "label": "PGVector", "url": "https://github.com/pgvector/pgvector" },
+    { "label": "WAHA - WhatsApp API", "url": "https://waha.devlike.pro/"}
+  ],
+  "maintainers": [
+    { "name": "Camilo Carromeu", "email": "camilo.carromeu@embrapa.br", "phone": "+55 (67) 9 8111-8060" }
+  ],
+  "variables": {
+    "default": [
+      { "name": "PORT", "type": "PORT" },
+      { "name": "HOST", "type": "TEXT", "value": "my.n8n.cnpxx.embrapa.br" },
+      { "name": "PORT_PGADMIN", "type": "PORT" },
+      { "name": "PORT_WAHA", "type": "PORT" },
+      { "name": "POSTGRES_USER", "type": "TEXT", "value": "postgres" },
+      { "name": "POSTGRES_PASSWORD", "type": "PASSWORD" },
+      { "name": "POSTGRES_NON_ROOT_USER", "type": "TEXT", "value": "n8n" },
+      { "name": "POSTGRES_NON_ROOT_PASSWORD", "type": "PASSWORD" },
+      { "name": "TIMEZONE", "type": "TEXT", "value": "America/Sao_Paulo" },
+      { "name": "VECTOR_DB", "type": "TEXT", "value": "n8n_vector" },
+      { "name": "VECTOR_USER", "type": "TEXT", "value": "vector" },
+      { "name": "VECTOR_PASSWORD", "type": "PASSWORD" },
+      { "name": "PGADMIN_USER", "type": "TEXT", "value": "first.surname@embrapa.br" },
+      { "name": "PGADMIN_PASSWORD", "type": "PASSWORD" },
+      { "name": "WAHA_USERNAME", "type": "PASSWORD" },
+      { "name": "WAHA_PASSWORD", "type": "PASSWORD" },
+      { "name": "VOLUME_DB", "type": "VOLUME" },
+      { "name": "VOLUME_N8N", "type": "VOLUME" },
+      { "name": "VOLUME_VECTOR", "type": "VOLUME" },
+      { "name": "VOLUME_PGADMIN", "type": "VOLUME" },
+      { "name": "VOLUME_WAHA", "type": "VOLUME" }
+    ],
+    "alpha": [],
+    "beta": [],
+    "release": []
+  },
+  "orchestrators": [ "DockerCompose" ]
+}

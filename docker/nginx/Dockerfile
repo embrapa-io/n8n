@@ -13,9 +13,9 @@ ENV FORWARD_PORT=80
 
 # Nginx config file
 WORKDIR /
-COPY nginx-basic-auth.conf nginx-basic-auth.conf
+COPY /docker/nginx/nginx-basic-auth.conf ./
 
 # Startup script
-COPY run.sh ./
-RUN chmod 0755 ./run.sh
-CMD [ "./run.sh" ]
+COPY /docker/nginx/configure.sh ./
+RUN chmod 0755 ./configure.sh
+CMD [ "./configure.sh" ]

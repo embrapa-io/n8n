@@ -1,6 +1,8 @@
 services:
   db:
-    image: postgres:17
+    build:
+      context: .
+      dockerfile: ./docker/db/Dockerfile
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -10,7 +12,8 @@ services:
       POSTGRES_NON_ROOT_PASSWORD: ${POSTGRES_NON_ROOT_PASSWORD}
     volumes:
       - db_storage:/var/lib/postgresql/data
-      - ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
+    networks:
+      - stack
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER} -d n8n']
       interval: 5s
@@ -26,6 +29,8 @@ services:
       POSTGRES_DB: ${VECTOR_DB}
     volumes:
       - vector_storage:/var/lib/postgresql/data
+    networks:
+      - stack
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -h localhost -U ${VECTOR_USER} -d ${VECTOR_DB}']
       interval: 5s
@@ -46,6 +51,9 @@ services:
       DB_POSTGRESDB_USER: ${POSTGRES_NON_ROOT_USER}
       DB_POSTGRESDB_PASSWORD: ${POSTGRES_NON_ROOT_PASSWORD}
       GENERIC_TIMEZONE: ${TIMEZONE}
+      NODE_FUNCTION_ALLOW_BUILTIN: crypto
+      NODE_FUNCTION_ALLOW_EXTERNAL: moment,lodash
+      N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE: 'true'
     ports:
       - ${PORT}:5678
     links:
@@ -53,6 +61,8 @@ services:
       - vector
     volumes:
       - n8n_storage:/home/node/.n8n
+    networks:
+      - stack
     depends_on:
       db:
         condition: service_healthy
@@ -69,6 +79,8 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     volumes:
       - pgadmin_storage:/var/lib/pgadmin
+    networks:
+      - stack
 
   waha:
     image: devlikeapro/waha:latest
@@ -78,6 +90,8 @@ services:
       WHATSAPP_HOOK_EVENTS: message
     volumes:
       - waha_storage:/tmp
+    networks:
+      - stack
     healthcheck:
       test: curl --fail -s http://localhost:3000 || exit 1
       interval: 20s
@@ -88,7 +102,10 @@ services:
   nginx:
     build:
       context: .
+      dockerfile: ./docker/nginx/Dockerfile
     restart: unless-stopped
+    networks:
+      - stack
     ports:
       - ${PORT_WAHA}:80
     depends_on:
@@ -99,6 +116,84 @@ services:
       - FORWARD_PORT=3000
       - BASIC_USERNAME=${WAHA_USERNAME}
       - BASIC_PASSWORD=${WAHA_PASSWORD}
+
+  backup:
+    image: postgres:17
+    restart: no
+    links:
+      - db
+    volumes:
+      - backup_storage:/backup
+      - n8n_storage:/n8n
+    networks:
+      - stack
+    command: >
+      sh -c  "set -ex &&
+        export BACKUP_FILE=$$(date +'%Y_%m_%d_%H_%M_%S')_${IO_PROJECT}_${IO_APP}_${IO_STAGE}_${IO_VERSION} &&
+        mkdir -p /backup/$$BACKUP_FILE && cd /backup/$$BACKUP_FILE &&
+        export PGHOST=db && export PGUSER=${POSTGRES_USER} && export PGPASSWORD=${POSTGRES_PASSWORD} &&
+        pg_dump --file n8n.dump --format=p --encoding=UTF8 --no-owner --no-privileges --clean --if-exists --verbose n8n &&
+        export PGHOST=vector && PGUSER=${VECTOR_USER} PGPASSWORD=${VECTOR_PASSWORD} &&
+        pg_dump --file vector.dump --format=p --encoding=UTF8 --no-owner --no-privileges --clean --if-exists --verbose ${VECTOR_DB} &&
+        cd /backup && cp -r /n8n /backup/$$BACKUP_FILE/ &&
+        tar -zcf $$BACKUP_FILE.tar.gz ./$$BACKUP_FILE &&
+        rm -rf /backup/$$BACKUP_FILE"
+    profiles:
+      - cli
+
+  restore:
+    image: postgres:17
+    environment:
+      PGUSER: ${POSTGRES_USER}
+      POSTGRES_USER: ${POSTGRES_USER}
+    restart: no
+    links:
+      - db
+    volumes:
+      - backup_storage:/backup
+    networks:
+      - stack
+    command: >
+      sh -c  'set -ex &&
+        cd /backup &&
+        export PGHOST=db &&
+        export FILE_TO_RESTORE=${BACKUP_FILE_TO_RESTORE:-no_file_to_restore} &&
+        tar -zxf $$FILE_TO_RESTORE &&
+        BACKUP_PGDB=$$FILE_TO_RESTORE &&
+        export BACKUP_PGDB=$${BACKUP_PGDB%".tar.gz"} &&
+        PGPASSWORD=${POSTGRES_PASSWORD} dropdb -U ${POSTGRES_USER} "${IO_PROJECT}_${IO_APP}" &&
+        PGPASSWORD=${POSTGRES_PASSWORD} createdb -U ${POSTGRES_USER} --encoding UTF8 --locale en_US.utf8 "${IO_PROJECT}_${IO_APP}"  &&
+        PGPASSWORD=${POSTGRES_PASSWORD} psql -U ${POSTGRES_USER} -d ""${IO_PROJECT}_${IO_APP}"" < $$BACKUP_PGDB &&
+        rm -rf $$BACKUP_PGDB'
+    profiles:
+      - cli
+
+  sanitize:
+    image: postgres:17
+    environment:
+      PGUSER: ${POSTGRES_USER}
+      POSTGRES_USER: ${POSTGRES_USER}
+    restart: no
+    depends_on:
+      - db
+    links:
+      - db
+    volumes:
+      - backup_storage:/backup
+    networks:
+      - stack
+    command: >
+      sh -c  'set -ex &&
+        export PGHOST=db &&
+        PGPASSWORD=${POSTGRES_PASSWORD} vacuumdb --analyze ${IO_PROJECT}_${IO_APP} &&
+        PGPASSWORD=${POSTGRES_PASSWORD} reindexdb ${IO_PROJECT}_${IO_APP}'
+    profiles:
+      - cli
+
+networks:
+  stack:
+    external: true
+    name: ${IO_PROJECT}_${IO_APP}_${IO_STAGE}
 
 volumes:
   db_storage:
@@ -119,4 +214,8 @@ volumes:
 
   waha_storage:
     name: ${VOLUME_WAHA}
+    external: true
+
+  backup_storage:
+    name: ${IO_PROJECT}_${IO_APP}_${IO_STAGE}_backup
     external: true
