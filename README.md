@@ -1,18 +1,9 @@
-# N8N for Embrapa I/O
+### %GENESIS_PROJECT_NAME%
+# %GENESIS_PROJECT_UNIX% / %GENESIS_APP_UNIX%
 
-Configuração de deploy do [N8N](https://github.com/n8n-io/n8n) (_workflow automation_) no ecossistema do Embrapa I/O.
+Instancia no cluster o automatizador de fluxograma [N8N](https://n8n.io), bem como containers do [PGVector](https://github.com/pgvector/pgvector) e do [WAHA - WhatsApp API](https://waha.devlike.pro).
 
 Baseado na [configuração de _deploy_ do N8B usando Docker](https://docs.n8n.io/hosting/installation/server-setups/docker-compose/).
-
-## Ollama
-
-No MacOS não é possível expor a GPU para o Docker. Assim, é necessário instalar o Ollama diretamente no SO.
-
-```
-brew install ollama
-brew services start ollama
-ollama pull gemma3:4b
-```
 
 ## Deploy
 
@@ -21,23 +12,25 @@ ollama pull gemma3:4b
 Criação dos volumes:
 
 ```
-docker volume create n8n_db && \
-docker volume create n8n_data && \
-docker volume create n8n_vector && \
-docker volume create n8n_pgadmin && \
-docker volume create n8n_waha
+docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_db && \
+docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_data && \
+docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_vector && \
+docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_pgadmin && \
+docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_waha && \
+docker volume create --driver local --opt type=none --opt device=$(pwd)/backup --opt o=bind %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_backup
 ```
 
 Configuração das variáveis de ambiente:
 
 ```
 cp .env.example .env
+cp .env.io.example .env.io
 ```
 
 Subir a _stack_ de containers:
 
 ```
-docker compose up --force-recreate --build --remove-orphans --wait
+env $(cat .env.io) docker compose up --force-recreate --build --remove-orphans --wait
 ```
 
 ## Referências
