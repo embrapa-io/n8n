@@ -8,6 +8,8 @@
         "PGUSER",
         "postgresdb",
         "POSTGRESDB",
+        "reindexdb",
+        "vacuumdb",
         "waha",
         "whatsapp"
     ]
