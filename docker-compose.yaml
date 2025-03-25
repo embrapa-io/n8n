@@ -14,6 +14,8 @@ services:
       - db_storage:/var/lib/postgresql/data
     networks:
       - stack
+    expose:
+      - 5432
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER} -d n8n']
       interval: 5s
@@ -31,11 +33,27 @@ services:
       - vector_storage:/var/lib/postgresql/data
     networks:
       - stack
+    expose:
+      - 5432
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -h localhost -U ${VECTOR_USER} -d ${VECTOR_DB}']
       interval: 5s
       timeout: 5s
       retries: 10
+
+  memory:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks:
+      - stack
+    expose:
+      - 6379
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
   n8n:
     image: docker.n8n.io/n8nio/n8n
@@ -68,6 +86,8 @@ services:
         condition: service_healthy
       vector:
         condition: service_healthy
+      memory:
+        condition: service_healthy
 
   pgadmin:
     image: dpage/pgadmin4:9
@@ -92,6 +112,8 @@ services:
       - waha_storage:/tmp
     networks:
       - stack
+    expose:
+      - 80
     healthcheck:
       test: curl --fail -s http://localhost:3000 || exit 1
       interval: 20s

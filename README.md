@@ -38,3 +38,11 @@ env $(cat .env.io) docker compose up --force-recreate --build --remove-orphans -
 - https://www.youtube.com/watch?v=g3sXsi_OYqQ&t=1575s
 - https://comunidadezdg.com.br/waha-n8n/
 - https://waha.devlike.pro/docs/overview/quick-start/
+
+## Anotações
+
+Dica para subir os dados de um BD PGVector (onde os vetores são gerados) para outro (onde serão utilizados pelo N8N):
+
+```
+pg_dump -C -t vectors_phi4_14b -h localhost n8n_vector -U vector | psql -h cloud.agro.rocks -U vector -p 49212 n8n_vector
+```
