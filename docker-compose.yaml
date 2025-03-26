@@ -108,6 +108,7 @@ services:
     environment:
       WHATSAPP_DEFAULT_ENGINE: NOWEB
       WHATSAPP_HOOK_EVENTS: message
+      WHATSAPP_HOOK_URL: http://n8n:5678/webhook/${WAHA_HOOK_KEY}/waha
     volumes:
       - waha_storage:/tmp
     networks:
