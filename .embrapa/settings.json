@@ -29,6 +29,7 @@
       { "name": "PGADMIN_PASSWORD", "type": "PASSWORD" },
       { "name": "WAHA_USERNAME", "type": "PASSWORD" },
       { "name": "WAHA_PASSWORD", "type": "PASSWORD" },
+      { "name": "WAHA_HOOK_KEY", "type": "TEXT", "value": "GET_IN_WAHA_TRIGGER" },
       { "name": "VOLUME_DB", "type": "VOLUME", "value": "db" },
       { "name": "VOLUME_N8N", "type": "VOLUME", "value": "n8n" },
       { "name": "VOLUME_VECTOR", "type": "VOLUME", "value": "vector" },
