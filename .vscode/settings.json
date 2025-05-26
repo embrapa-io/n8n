@@ -10,6 +10,7 @@
         "POSTGRESDB",
         "psql",
         "reindexdb",
+        "siexp",
         "vacuumdb",
         "waha",
         "whatsapp"
