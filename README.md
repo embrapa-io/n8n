@@ -1,5 +1,5 @@
-### %GENESIS_PROJECT_NAME%
-# %GENESIS_PROJECT_UNIX% / %GENESIS_APP_UNIX%
+### SIExp
+# siexp / n8n
 
 Instancia no cluster o automatizador de fluxograma [N8N](https://n8n.io), bem como containers do [PGVector](https://github.com/pgvector/pgvector) e do [WAHA - WhatsApp API](https://waha.devlike.pro).
 
@@ -12,13 +12,13 @@ Baseado na [configuração de _deploy_ do N8N usando Docker](https://docs.n8n.io
 Crie a _network_ e os _volumes_ locais:
 
 ```
-docker network create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development && \ 
-docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_db && \
-docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_n8n && \
-docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_vector && \
-docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_pgadmin && \
-docker volume create %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_waha && \
-docker volume create --driver local --opt type=none --opt device=$(pwd)/backup --opt o=bind %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_development_backup
+docker network create siexp_n8n_development && \ 
+docker volume create siexp_n8n_development_db && \
+docker volume create siexp_n8n_development_n8n && \
+docker volume create siexp_n8n_development_vector && \
+docker volume create siexp_n8n_development_pgadmin && \
+docker volume create siexp_n8n_development_waha && \
+docker volume create --driver local --opt type=none --opt device=$(pwd)/backup --opt o=bind siexp_n8n_development_backup
 ```
 
 Configure das variáveis de ambiente:
