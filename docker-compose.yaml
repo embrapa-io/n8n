@@ -92,8 +92,6 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     volumes:
       - pgadmin_storage:/var/lib/pgadmin
-    networks:
-      - stack
 
   waha:
     image: devlikeapro/waha:latest
@@ -191,5 +189,5 @@ volumes:
     external: true
 
   backup_storage:
-    name: io_n8n_backup
+    name: ${VOLUME_BACKUP}
     external: true
