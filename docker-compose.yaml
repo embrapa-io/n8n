@@ -12,8 +12,6 @@ services:
       POSTGRES_NON_ROOT_PASSWORD: ${POSTGRES_NON_ROOT_PASSWORD}
     volumes:
       - db_storage:/var/lib/postgresql/data
-    networks:
-      - stack
     expose:
       - 5432
     healthcheck:
@@ -32,8 +30,6 @@ services:
       - ${PORT_QDRANT}:6333
     volumes:
       - qdrant_storage:/qdrant
-    networks:
-      - stack
     healthcheck:
       test:
         - CMD-SHELL
@@ -45,8 +41,6 @@ services:
   memory:
     image: redis:7-alpine
     restart: unless-stopped
-    networks:
-      - stack
     expose:
       - 6379
     healthcheck:
@@ -80,8 +74,6 @@ services:
       - qdrant
     volumes:
       - n8n_storage:/home/node/.n8n
-    networks:
-      - stack
     depends_on:
       db:
         condition: service_healthy
@@ -112,8 +104,6 @@ services:
       WHATSAPP_HOOK_URL: http://n8n:5678/webhook/${WAHA_HOOK_KEY}/waha
     volumes:
       - waha_storage:/tmp
-    networks:
-      - stack
     expose:
       - 80
     healthcheck:
@@ -128,8 +118,6 @@ services:
       context: .
       dockerfile: ./docker/nginx/Dockerfile
     restart: unless-stopped
-    networks:
-      - stack
     ports:
       - ${PORT_WAHA}:80
     depends_on:
@@ -155,15 +143,13 @@ services:
       - backup_storage:/backup
       - n8n_storage:/n8n
       - qdrant_storage:/qdrant
-    networks:
-      - stack
     command: >
       sh -c 'set -ex &&
-        export BACKUP_FILE=$$(date +"%Y_%m_%d_%H_%M_%S")_${IO_PROJECT}_${IO_APP}_${IO_STAGE}_${IO_VERSION} &&
+        export BACKUP_FILE=$$(date +"%Y_%m_%d_%H_%M_%S")_io_n8n &&
         mkdir -p /backup/$$BACKUP_FILE && cd /backup/$$BACKUP_FILE &&
         export PGHOST=db PGUSER=${POSTGRES_USER} PGPASSWORD=${POSTGRES_PASSWORD} &&
         pg_dump --file n8n.dump --format=p --encoding=UTF8 --no-owner --no-privileges --clean --if-exists --verbose n8n &&
-        curl -X POST http://qdrant:6333/snapshots -H "Content-Type: application/json" -H "api-key: ${QDRANT_API_KEY}" -d "{\"snapshot_name\": \"siexp\", \"wait\": true}" &&
+        curl -X POST http://qdrant:6333/snapshots -H "Content-Type: application/json" -H "api-key: ${QDRANT_API_KEY}" -d "{\"snapshot_name\": \"io\", \"wait\": true}" &&
         cd /backup && cp -r /n8n /backup/$$BACKUP_FILE/ && cp -r /qdrant/snapshots /backup/$$BACKUP_FILE/ && \
         tar -zcf $$BACKUP_FILE.tar.gz ./$$BACKUP_FILE &&
         rm -rf /backup/$$BACKUP_FILE'
@@ -176,19 +162,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    networks:
-      - stack
     command: >
       sh -c  'set -ex &&
         export PGHOST=db PGUSER=${POSTGRES_USER} PGPASSWORD=${POSTGRES_PASSWORD} &&
         vacuumdb --analyze n8n && reindexdb --all'
     profiles:
       - cli
-
-networks:
-  stack:
-    external: true
-    name: ${IO_PROJECT}_${IO_APP}_${IO_STAGE}
 
 volumes:
   db_storage:
@@ -212,5 +191,5 @@ volumes:
     external: true
 
   backup_storage:
-    name: ${IO_PROJECT}_${IO_APP}_${IO_STAGE}_backup
+    name: io_n8n_backup
     external: true

@@ -1,5 +1,2 @@
 .env
-.env.io
-.env.ci
-.env.sh
 .DS_Store
