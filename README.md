@@ -33,7 +33,7 @@ docker compose up --force-recreate --build --remove-orphans --wait
 
 ## Community Nodes
 
-É necessário [instalar dois _community nodes_](https://docs.n8n.io/integrations/community-nodes/installation/gui-install/#install-a-community-node) para utilizar os _workflows_ como **MCP Servers** e com a **WAHA WhatsApp API**, respectivamente:
+É necessário [instalar dois _community nodes_](https://docs.n8n.io/integrations/community-nodes/installation/gui-install/#install-a-community-node) para utilizar os _workflows_ com a **WAHA WhatsApp API**:
 
 - `@devlikeapro/n8n-nodes-waha`
 
