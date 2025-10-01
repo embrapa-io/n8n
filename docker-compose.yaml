@@ -12,6 +12,8 @@ services:
       POSTGRES_NON_ROOT_PASSWORD: ${POSTGRES_NON_ROOT_PASSWORD}
     volumes:
       - db_storage:/var/lib/postgresql/data
+    networks:
+      - io
     expose:
       - 5432
     healthcheck:
@@ -26,6 +28,8 @@ services:
     environment:
       - SERVICE_FQDN_QDRANT_6333
       - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY}
+    networks:
+      - io
     ports:
       - ${PORT_QDRANT}:6333
     volumes:
@@ -41,6 +45,8 @@ services:
   memory:
     image: redis:7-alpine
     restart: unless-stopped
+    networks:
+      - io
     expose:
       - 6379
     healthcheck:
@@ -67,6 +73,8 @@ services:
       NODE_FUNCTION_ALLOW_BUILTIN: crypto
       NODE_FUNCTION_ALLOW_EXTERNAL: moment,lodash
       N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE: 'true'
+    networks:
+      - io
     ports:
       - ${PORT}:5678
     links:
@@ -85,6 +93,8 @@ services:
   pgadmin:
     image: dpage/pgadmin4:9
     restart: unless-stopped
+    networks:
+      - io
     ports:
       - "${PORT_PGADMIN}:80"
     environment:
@@ -102,6 +112,8 @@ services:
       WHATSAPP_HOOK_URL: http://n8n:5678/webhook/${WAHA_HOOK_KEY}/waha
     volumes:
       - waha_storage:/tmp
+    networks:
+      - io
     expose:
       - 80
     healthcheck:
@@ -116,6 +128,8 @@ services:
       context: .
       dockerfile: ./docker/nginx/Dockerfile
     restart: unless-stopped
+    networks:
+      - io
     ports:
       - ${PORT_WAHA}:80
     depends_on:
@@ -132,6 +146,8 @@ services:
       context: .
       dockerfile: ./docker/backup/Dockerfile
     restart: no
+    networks:
+      - io
     depends_on:
       db:
         condition: service_healthy
@@ -157,6 +173,8 @@ services:
   sanitize:
     image: postgres:17
     restart: no
+    networks:
+      - io
     depends_on:
       db:
         condition: service_healthy
@@ -166,6 +184,14 @@ services:
         vacuumdb --analyze n8n && reindexdb --all'
     profiles:
       - cli
+
+# Execute:
+# docker network create --driver=bridge --subnet=172.30.120.0/24 --gateway=172.30.120.1 n8n
+
+networks:
+  io:
+    name: ${COMPOSE_PROJECT_NAME}
+    external: true
 
 volumes:
   db_storage:
