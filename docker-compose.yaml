@@ -110,12 +110,15 @@ services:
       WHATSAPP_DEFAULT_ENGINE: NOWEB
       WHATSAPP_HOOK_EVENTS: message
       WHATSAPP_HOOK_URL: http://n8n:5678/webhook/${WAHA_HOOK_KEY}/waha
+      WAHA_NO_API_KEY: 'True'
+      WAHA_DASHBOARD_NO_PASSWORD: 'True'
+      WHATSAPP_SWAGGER_NO_PASSWORD: 'True'
     volumes:
       - waha_storage:/tmp
     networks:
       - io
     expose:
-      - 80
+      - 3000
     healthcheck:
       test: curl --fail -s http://localhost:3000 || exit 1
       interval: 20s
