@@ -111,38 +111,16 @@ services:
       WHATSAPP_HOOK_EVENTS: message
       WHATSAPP_HOOK_URL: http://n8n:5678/webhook/${WAHA_HOOK_KEY}/waha
       WAHA_API_KEY: ${WAHA_API_KEY}
-      WAHA_DASHBOARD_NO_PASSWORD: 'True'
-      WHATSAPP_SWAGGER_NO_PASSWORD: 'True'
+      WAHA_DASHBOARD_USERNAME: ${WAHA_USERNAME}
+      WAHA_DASHBOARD_PASSWORD: ${WAHA_PASSWORD}
+      WHATSAPP_SWAGGER_USERNAME: ${WAHA_USERNAME}
+      WHATSAPP_SWAGGER_PASSWORD: ${WAHA_PASSWORD}
     volumes:
       - waha_storage:/tmp
     networks:
       - io
-    expose:
-      - 3000
-    healthcheck:
-      test: curl --fail -s http://localhost:3000 || exit 1
-      interval: 20s
-      timeout: 10s
-      start_period: 10s
-      retries: 5
-
-  nginx:
-    build:
-      context: .
-      dockerfile: ./docker/nginx/Dockerfile
-    restart: unless-stopped
-    networks:
-      - io
     ports:
-      - ${PORT_WAHA}:80
-    depends_on:
-      waha:
-        condition: service_healthy
-    environment:
-      - FORWARD_HOST=waha
-      - FORWARD_PORT=3000
-      - BASIC_USERNAME=${WAHA_USERNAME}
-      - BASIC_PASSWORD=${WAHA_PASSWORD}
+      - ${PORT_WAHA}:3000
 
   backup:
     build:
