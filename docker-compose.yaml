@@ -139,11 +139,11 @@ services:
       - n8n_storage:/n8n
       - qdrant_storage:/qdrant
     command: >
-      sh -c 'set -ex &&
+      sh -c 'set -e &&
         export BACKUP_FILE=$$(date +"%Y_%m_%d_%H_%M_%S")_io_n8n &&
         mkdir -p /backup/$$BACKUP_FILE && cd /backup/$$BACKUP_FILE &&
         export PGHOST=db PGUSER=${POSTGRES_USER} PGPASSWORD=${POSTGRES_PASSWORD} &&
-        pg_dump --file n8n.dump --format=p --encoding=UTF8 --no-owner --no-privileges --clean --if-exists --verbose n8n &&
+        pg_dump --file n8n.dump --format=p --encoding=UTF8 --no-owner --no-privileges --clean --if-exists n8n &&
         curl -X POST http://qdrant:6333/snapshots -H "Content-Type: application/json" -H "api-key: ${QDRANT_API_KEY}" -d "{\"snapshot_name\": \"io\", \"wait\": true}" &&
         cd /backup && cp -r /n8n /backup/$$BACKUP_FILE/ && cp -r /qdrant/snapshots /backup/$$BACKUP_FILE/ && \
         tar -zcf $$BACKUP_FILE.tar.gz ./$$BACKUP_FILE &&
@@ -160,7 +160,7 @@ services:
       db:
         condition: service_healthy
     command: >
-      sh -c  'set -ex &&
+      sh -c  'set -e &&
         export PGHOST=db PGUSER=${POSTGRES_USER} PGPASSWORD=${POSTGRES_PASSWORD} &&
         vacuumdb --analyze n8n && reindexdb --all'
     profiles:
