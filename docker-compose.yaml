@@ -66,11 +66,6 @@ services:
       # Atrás do router (nginx) da plataforma: sem isso o Express rejeita o
       # X-Forwarded-For ("trust proxy" desligado) e o rate limit/IP real quebram.
       N8N_PROXY_HOPS: 1
-      # Temporário (20/09/2026): diagnóstico do fluxo OAuth do YouTube, que não
-      # conclui o retorno para /rest/oauth2-credential/callback. No nível info o
-      # n8n não registra requisições, então nada aparece no Loki. Voltar a info
-      # assim que a credencial estiver de pé.
-      N8N_LOG_LEVEL: debug
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: db
       DB_POSTGRESDB_PORT: 5432
