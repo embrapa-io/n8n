@@ -120,7 +120,7 @@ if [ "$YES" -ne 1 ]; then
 fi
 
 echo "Backup da stack (pg_dump, n8n e snapshot do Qdrant)..."
-docker compose --profile cli run --rm backup >/dev/null
+docker compose --profile cli run --rm -T backup >/dev/null
 echo "Backup concluído: $(ls -t backup/*.tar.gz 2>/dev/null | head -n 1)"
 
 setenv() { # grava QDRANT_VERSION no .env (reescreve no mesmo arquivo, mantendo dono e permissões)
