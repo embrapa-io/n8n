@@ -23,7 +23,10 @@ services:
       retries: 10
 
   qdrant:
-    image: qdrant/qdrant:latest
+    # Versão fixada de propósito: o Qdrant não admite pular versões menores (a
+    # migração dos dados é feita uma versão por vez). Para atualizar, suba UMA versão
+    # menor por vez, no último patch dela, com scripts/qdrant-upgrade.sh.
+    image: qdrant/qdrant:${QDRANT_VERSION:-v1.14.1}
     restart: unless-stopped
     environment:
       - SERVICE_FQDN_QDRANT_6333
@@ -32,8 +35,22 @@ services:
       - io
     ports:
       - ${PORT_QDRANT}:6333
+    # Só os dados vão para o volume. Montado em /qdrant (como era até 11/2026), o
+    # volume encobria o binário da imagem: o Docker copiou para ele o binário da
+    # primeira instalação (1.14.1) e toda imagem nova continuava rodando esse binário.
+    # O volume guarda os dados em storage/ e snapshots/ desde então; o subpath os
+    # aproveita sem cópia.
     volumes:
-      - qdrant_storage:/qdrant
+      - type: volume
+        source: qdrant_storage
+        target: /qdrant/storage
+        volume:
+          subpath: storage
+      - type: volume
+        source: qdrant_storage
+        target: /qdrant/snapshots
+        volume:
+          subpath: snapshots
     healthcheck:
       test:
         - CMD-SHELL
@@ -106,25 +123,6 @@ services:
     volumes:
       - pgadmin_storage:/var/lib/pgadmin
 
-  waha:
-    image: devlikeapro/waha:latest
-    restart: unless-stopped
-    environment:
-      WHATSAPP_DEFAULT_ENGINE: NOWEB
-      WHATSAPP_HOOK_EVENTS: message
-      WHATSAPP_HOOK_URL: http://n8n:5678/webhook/${WAHA_HOOK_KEY}/waha
-      WAHA_API_KEY: ${WAHA_API_KEY}
-      WAHA_DASHBOARD_USERNAME: ${WAHA_USERNAME}
-      WAHA_DASHBOARD_PASSWORD: ${WAHA_PASSWORD}
-      WHATSAPP_SWAGGER_USERNAME: ${WAHA_USERNAME}
-      WHATSAPP_SWAGGER_PASSWORD: ${WAHA_PASSWORD}
-    volumes:
-      - waha_storage:/tmp
-    networks:
-      - io
-    ports:
-      - ${PORT_WAHA}:3000
-
   backup:
     build:
       context: .
@@ -192,10 +190,6 @@ volumes:
 
   pgadmin_storage:
     name: ${VOLUME_PGADMIN}
-    external: true
-
-  waha_storage:
-    name: ${VOLUME_WAHA}
     external: true
 
   backup_storage:

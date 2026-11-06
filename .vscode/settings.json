@@ -1,6 +1,5 @@
 {
     "cSpell.words": [
-        "devlikeapro",
         "dpage",
         "PGDB",
         "PGHOST",
@@ -10,8 +9,6 @@
         "POSTGRESDB",
         "psql",
         "reindexdb",
-        "vacuumdb",
-        "waha",
-        "whatsapp"
+        "vacuumdb"
     ]
 }
