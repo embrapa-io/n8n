@@ -26,7 +26,7 @@ services:
     # Versão fixada de propósito: o Qdrant não admite pular versões menores (a
     # migração dos dados é feita uma versão por vez). Para atualizar, suba UMA versão
     # menor por vez, no último patch dela, com scripts/qdrant-upgrade.sh.
-    image: qdrant/qdrant:${QDRANT_VERSION:-v1.14.1}
+    image: qdrant/qdrant:${QDRANT_VERSION:-v1.20.0}
     restart: unless-stopped
     environment:
       - SERVICE_FQDN_QDRANT_6333
