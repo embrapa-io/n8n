@@ -120,7 +120,7 @@ if [ "$YES" -ne 1 ]; then
 fi
 
 echo "Backup da stack (pg_dump, n8n e snapshot do Qdrant)..."
-docker compose --profile cli run --rm -T backup >/dev/null
+docker compose --progress plain --profile cli run --rm -T backup
 echo "Backup concluído: $(ls -t backup/*.tar.gz 2>/dev/null | head -n 1)"
 
 setenv() { # grava QDRANT_VERSION no .env (reescreve no mesmo arquivo, mantendo dono e permissões)
@@ -134,7 +134,7 @@ setenv() { # grava QDRANT_VERSION no .env (reescreve no mesmo arquivo, mantendo 
 
 for v in "${VERSIONS[@]}"; do
   echo "== $v"
-  QDRANT_VERSION="$v" docker compose up -d --no-deps --force-recreate --wait qdrant >/dev/null
+  QDRANT_VERSION="$v" docker compose --progress plain up -d --no-deps --force-recreate --wait qdrant
   wait_up || { echo "O Qdrant $v não respondeu. Veja: docker compose logs --tail 100 qdrant" >&2; exit 1; }
 
   got="$(version)"
